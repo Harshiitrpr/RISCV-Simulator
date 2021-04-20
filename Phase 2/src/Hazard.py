@@ -3,10 +3,6 @@ from stageFunctions import State
 
 class HDU:
 
-        code here
-
-
-
     def __init__(self):
         self.E2E=0#data in EtoE data line.
         self.M2E=0

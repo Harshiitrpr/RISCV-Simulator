@@ -17,7 +17,7 @@ Project Name: Functional Simulator for subset of RISC-V Processor
 # Purpose of this file: This file controls the overall functioning of the Simulator.
 
 from Gui import display, take_input
-from myRISCVSim import State, Processor, BTB # Also, import Hazard detection unit
+from myRISCVSim import State, Processor, BTB, HDU # Also, import Hazard detection unit
 import time
 
 '''
@@ -74,6 +74,22 @@ b) data_hazard(pipeline_instructions, new_instruction, pc, forwarding_enabled) #
             return was_there_hazard, new_pc
 ------
 '''
+def evaluate(processor, pipeline_instructions):
+    for idx, x in pipeline_instructions:
+        if idx == 0:
+            branch_taken, branch_pc, state = processor.write_back(x)
+        
+        elif idx == 1:
+            processor.mem(x)
+
+        elif idx == 2:
+            processor.execute(x)
+
+        elif idx == 3:
+            processor.decode(x)
+
+        elif idx == 4:
+            processor.fetch(x)
 
 if __name__ == '__main__':
 
@@ -81,6 +97,7 @@ if __name__ == '__main__':
     prog_mc_file = take_input()
 
     processor = Processor(prog_mc_file)
+    hdu = HDU()
     btb = BTB()
     # invoke BTB
     # invoke HDU
@@ -146,7 +163,7 @@ if __name__ == '__main__':
 
         while True:
             if not forwarding_enabled:
-                pipeline_instructions = [x.evaluate() for x in pipeline_instructions]
+                pipeline_instructions = evaluate(processor, pipeline_instructions)
 
                 for _ in pipeline_instructions:
                     if _.stage == 3 and _.pc_update and _.branch_taken != btb.getTarget(PC):
